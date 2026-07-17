@@ -1,0 +1,32 @@
+{
+  "info": {
+    "_postman_id": "1b67dd28-778d-4d39-91f5-platepilot001",
+    "name": "PlatePilot API Demo",
+    "description": "Presentation-ready requests for the PlatePilot MERN API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://your-domain.com/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1 — API health",
+      "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } }
+    },
+    {
+      "name": "2 — Search chicken recipes (third-party integration)",
+      "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/recipes?search=chicken", "host": ["{{baseUrl}}"], "path": ["recipes"], "query": [{ "key": "search", "value": "chicken" }] } }
+    },
+    {
+      "name": "3 — Demo login",
+      "event": [{ "listen": "test", "script": { "exec": ["const body = pm.response.json();", "if (body.token) pm.collectionVariables.set('token', body.token);"] } }],
+      "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": { "raw": "{{baseUrl}}/auth/demo", "host": ["{{baseUrl}}"], "path": ["auth", "demo"] } }
+    },
+    {
+      "name": "4 — View weekly meal plan",
+      "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{token}}", "type": "text" }], "url": { "raw": "{{baseUrl}}/meal-plans", "host": ["{{baseUrl}}"], "path": ["meal-plans"] } }
+    }
+  ]
+}
+
