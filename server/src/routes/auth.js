@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import rateLimit from 'express-rate-limit';
 import { OAuth2Client } from 'google-auth-library';
 import { config } from '../config.js';
 import { createToken, requireAuth } from '../middleware/auth.js';
@@ -10,6 +11,14 @@ import { sendVerificationEmail } from '../services/email.js';
 
 export const authRouter = Router();
 const googleClient = new OAuth2Client(config.googleClientId);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 requests per window
+  message: { message: 'Too many attempts. Please try again in a few minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 function publicUser(user) {
   return {
@@ -33,21 +42,24 @@ async function makeVerification(user) {
   return sendVerificationEmail({ name: user.name, email: user.email, token });
 }
 
-authRouter.post('/register', async (req, res, next) => {
+authRouter.post('/register', authLimiter, async (req, res, next) => {
   try {
     const { name = '', email = '', password = '' } = req.body || {};
-    if (name.trim().length < 2 || !validEmail(email) || password.length < 8) {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (name.trim().length < 2 || !validEmail(trimmedEmail) || trimmedPassword.length < 8) {
       return res.status(400).json({ message: 'Enter a name, a valid email, and a password of at least 8 characters.' });
     }
 
-    if (await User.exists({ email: email.toLowerCase() })) {
+    if (await User.exists({ email: trimmedEmail.toLowerCase() })) {
       return res.status(409).json({ message: 'An account already exists for this email.' });
     }
 
     const user = await User.create({
       name: name.trim(),
-      email: email.toLowerCase(),
-      passwordHash: await bcrypt.hash(password, 12)
+      email: trimmedEmail.toLowerCase(),
+      passwordHash: await bcrypt.hash(trimmedPassword, 12)
     });
     const delivery = await makeVerification(user);
 
@@ -62,11 +74,14 @@ authRouter.post('/register', async (req, res, next) => {
   }
 });
 
-authRouter.post('/login', async (req, res, next) => {
+authRouter.post('/login', authLimiter, async (req, res, next) => {
   try {
     const { email = '', password = '' } = req.body || {};
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user?.passwordHash || !(await bcrypt.compare(password, user.passwordHash))) {
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    const user = await User.findOne({ email: trimmedEmail.toLowerCase() });
+    if (!user?.passwordHash || !(await bcrypt.compare(trimmedPassword, user.passwordHash))) {
       return res.status(401).json({ message: 'Email or password is incorrect.' });
     }
     return res.json({ token: createToken(user), user: publicUser(user) });
@@ -172,4 +187,3 @@ authRouter.get('/me', requireAuth, async (req, res, next) => {
     return next(error);
   }
 });
-
