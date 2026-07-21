@@ -3,7 +3,7 @@
 **Plan less. Savor more.** PlatePilot is a polished MERN meal planner that lets people authenticate, discover live recipes through TheMealDB, inspect ingredients and directions, and assign a recipe to each day of the week.
 
 # Website URL
-https://lampnicolasgomez.com/
+https://pilotplate.com/
 
 ## Course requirement coverage
 
