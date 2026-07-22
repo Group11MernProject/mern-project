@@ -53,10 +53,3 @@ server/src/__tests__/   Jest and Supertest suite
 docs/                   Deployment, presentation, and Postman materials
 .github/workflows/      CI/CD pipeline
 ```
-
-## Production and presentation
-
-- Follow [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for DigitalOcean, domain, TLS, OAuth, and CI/CD setup.
-- Use [`docs/PRESENTATION.md`](docs/PRESENTATION.md) to rehearse the 10-minute team presentation.
-- Replace all placeholder team names, domain, and GitHub URLs before submitting slides.
-
