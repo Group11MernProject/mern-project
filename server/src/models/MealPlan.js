@@ -1,21 +1,38 @@
 import mongoose from 'mongoose';
 
-const mealPlanSchema = new mongoose.Schema(
+const mealSchema = new mongoose.Schema(
   {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+    recipeId: {
+      type: String,
       required: true,
-      index: true
+      trim: true
     },
 
-    weekStartDate: {
-      type: Date,
+    title: {
+      type: String,
       required: true,
-      index: true
+      trim: true
     },
 
-    dayOfWeek: {
+    image: {
+      type: String,
+      required: true,
+      trim: true
+    },
+
+    category: {
+      type: String,
+      default: '',
+      trim: true
+    },
+
+    area: {
+      type: String,
+      default: '',
+      trim: true
+    },
+
+    day: {
       type: String,
       required: true,
       enum: [
@@ -27,30 +44,31 @@ const mealPlanSchema = new mongoose.Schema(
         'Saturday',
         'Sunday'
       ]
-    },
+    }
+  },
+  {
+    _id: false
+  }
+);
 
-    recipeId: {
+const mealPlanSchema = new mongoose.Schema(
+  {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Recipe',
-      required: true
+      ref: 'User',
+      required: true,
+      unique: true,
+      index: true
     },
 
-    mealType: {
-      type: String,
-      enum: ['breakfast', 'lunch', 'dinner'],
-      default: null
+    meals: {
+      type: [mealSchema],
+      default: []
     }
   },
   {
     timestamps: true
   }
 );
-
-mealPlanSchema.index({
-  userId: 1,
-  weekStartDate: 1,
-  dayOfWeek: 1,
-  mealType: 1
-});
 
 export const MealPlan = mongoose.model('MealPlan', mealPlanSchema);
