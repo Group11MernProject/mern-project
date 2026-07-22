@@ -238,7 +238,14 @@ function App({ googleEnabled }) {
   function runSearch(event) { event?.preventDefault(); setActiveSearch(search.trim()); setFilter('All'); }
   async function chooseDay(day) {
     try {
-      const data = await api(`/meal-plans/${day}`, { method: 'PUT', body: JSON.stringify(pickerRecipe) });
+      // Recipe cards use `id`, while the meal-plan API intentionally stores it as
+      // `recipeId`. Send the API contract explicitly rather than relying on the
+      // display-model property name.
+      const { id, title, image, category = '', area = '' } = pickerRecipe || {};
+      const data = await api(`/meal-plans/${day}`, {
+        method: 'PUT',
+        body: JSON.stringify({ recipeId: id, title, image, category, area })
+      });
       setMeals(data.meals); setToast(data.message); setPickerRecipe(null); setDetailRecipe(null);
     } catch (error) { setToast(error.message); }
   }
@@ -277,4 +284,3 @@ function App({ googleEnabled }) {
 }
 
 export default App;
-
