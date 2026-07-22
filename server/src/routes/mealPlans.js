@@ -7,15 +7,6 @@ mealPlansRouter.use(requireAuth);
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-function isValidUrl(value = '') {
-  try {
-    const url = new URL(value);
-    return url.protocol === 'http:' || url.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
 mealPlansRouter.get('/', async (req, res, next) => {
   try {
     const plan = await MealPlan.findOneAndUpdate(
@@ -32,31 +23,20 @@ mealPlansRouter.get('/', async (req, res, next) => {
 mealPlansRouter.put('/:day', async (req, res, next) => {
   try {
     const day = days.find((item) => item.toLowerCase() === req.params.day.toLowerCase());
-    const { recipeId = '', title = '', image = '', category = '', area = '' } = req.body || {};
-
-    const trimmedRecipeId = String(recipeId).trim();
-    const trimmedTitle = title.trim();
-    const trimmedImage = image.trim();
-    const trimmedCategory = category.trim().slice(0, 60);
-    const trimmedArea = area.trim().slice(0, 60);
-
-    if (!day || !trimmedRecipeId || !trimmedTitle || !isValidUrl(trimmedImage)) {
+    const { recipeId: suppliedRecipeId, id, title, image, category = '', area = '' } = req.body || {};
+    // Accept the normalized recipe object's `id` as well as the documented
+    // `recipeId` field, so a client-side naming mismatch cannot block planning.
+    const recipeId = suppliedRecipeId || id;
+    if (!day || !recipeId || !title || !image) {
       return res.status(400).json({ message: 'Choose a valid day and recipe.' });
     }
 
     let plan = await MealPlan.findOne({ user: req.auth.sub });
     if (!plan) plan = new MealPlan({ user: req.auth.sub, meals: [] });
     plan.meals = plan.meals.filter((meal) => meal.day !== day);
-    plan.meals.push({
-      recipeId: trimmedRecipeId,
-      title: trimmedTitle.slice(0, 140),
-      image: trimmedImage,
-      category: trimmedCategory,
-      area: trimmedArea,
-      day
-    });
+    plan.meals.push({ recipeId, title: title.slice(0, 140), image, category, area, day });
     await plan.save();
-    return res.json({ meals: plan.meals, message: `${trimmedTitle} added to ${day}.` });
+    return res.json({ meals: plan.meals, message: `${title} added to ${day}.` });
   } catch (error) {
     return next(error);
   }
