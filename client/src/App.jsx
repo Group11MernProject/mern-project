@@ -369,12 +369,12 @@ function App({ googleEnabled }) {
           {loading ? <div className="recipe-grid">{Array.from({ length: 6 }, (_, index) => <div className="recipe-card skeleton" key={index}><i/><span/><b/></div>)}</div> : visibleRecipes.length ? <div className="recipe-grid">{visibleRecipes.slice(0, 12).map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} onPlan={setPickerRecipe} onDetail={showDetail} plannedDay={meals.find((meal) => meal.recipeId === recipe.id)?.day}/>)}</div> : <div className="empty-results"><span><Icon name="search" size={28}/></span><h3>No recipes found</h3><p>Try a broader search like “chicken,” “pasta,” or “curry.”</p></div>}
         </section>
         <MiniPlan meals={meals} onViewPlan={() => setView('plan')} />
-      <WeekPlan
+      </div> : <WeekPlan
   meals={meals}
   onRemove={removeMeal}
   onDiscover={() => setView('discover')}
   onDetail={showDetail}
-/>
+/>}
     </main>
     {mobileOpen && <button className="mobile-scrim" onClick={() => setMobileOpen(false)} aria-label="Close menu" />}
     <DayPicker recipe={pickerRecipe} meals={meals} onClose={() => setPickerRecipe(null)} onChoose={chooseDay}/>
