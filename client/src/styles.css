@@ -4,7 +4,7 @@
   --forest: #254332;
   --forest-deep: #183225;
   --coral: #ee7451;
-  --coral-dark: #d65f3f;☺
+  --coral-dark: #d65f3f;
   --cream: #f7f3ea;
   --paper: #fffdf8;
   --line: #e7e2d8;
@@ -222,7 +222,10 @@ img { display: block; max-width: 100%; }
 .day-head > strong { font-size: 11px; }
 .day-head button { display: grid; place-items: center; width: 28px; height: 28px; margin-left: auto; padding: 0; border: 0; border-radius: 8px; color: #8d9790; background: transparent; }
 .day-head button:hover { color: #a64331; background: #f9e6df; }
-.day-card > img { width: 100%; height: 135px; object-fit: cover; }
+.planned-meal { display: block; width: 100%; padding: 0; border: 0; color: inherit; text-align: left; background: transparent; cursor: pointer; }
+.planned-meal img { display: block; width: 100%; height: 135px; object-fit: cover; }
+.planned-meal:focus-visible { outline: 3px solid var(--coral); outline-offset: -3px; }
+.planned-meal:hover .day-meal h2 { color: var(--coral-dark); }
 .day-meal { padding: 13px; }
 .day-meal small { color: var(--coral-dark); font-size: 8px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; }
 .day-meal h2 { margin: 6px 0 13px; font-family: Georgia, serif; font-size: 17px; line-height: 1.15; }
@@ -335,7 +338,7 @@ img { display: block; max-width: 100%; }
   .section-heading h2 { font-size: 25px; }
   .week-grid { grid-template-columns: 1fr; }
   .day-card { min-height: 0; }
-  .day-card > img { height: 185px; }
+  .planned-meal img { height: 185px; }
   .empty-night { min-height: 190px; }
   .plan-page { padding: 30px 14px 55px; }
   .week-stats { gap: 7px; }
@@ -350,36 +353,4 @@ img { display: block; max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-}
-
-.day-meal-button {
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  color: inherit;
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-}
-
-.day-meal-button > img {
-  width: 100%;
-  height: 135px;
-  object-fit: cover;
-  transition: transform 0.25s;
-}
-
-.day-meal-button:hover > img {
-  transform: scale(1.025);
-}
-
-.day-meal-button:hover .day-meal h2 {
-  color: var(--coral-dark);
-}
-
-@media (max-width: 480px) {
-  .day-meal-button > img {
-    height: 185px;
-  }
 }
