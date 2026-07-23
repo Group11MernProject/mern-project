@@ -174,12 +174,96 @@ function RecipeDetail({ recipe, detail, onClose, onPlan }) {
   </div>;
 }
 
-function WeekPlan({ meals, onRemove, onDiscover }) {
-  return <section className="plan-page">
-    <div className="page-title"><div><span className="eyebrow">Your weekly rhythm</span><h1>Seven days, one simple plan.</h1><p>{meals.length ? `${meals.length} meals planned. Your future self says thank you.` : 'Your week is wide open. Let’s add something delicious.'}</p></div><button className="button secondary" onClick={onDiscover}><Icon name="plus" size={18}/> Find recipes</button></div>
-    <div className="week-stats"><div><strong>{meals.length}</strong><span>meals planned</span></div><div><strong>{7 - meals.length}</strong><span>open nights</span></div><div><strong>{meals.length * 30}</strong><span>minutes saved</span></div></div>
-    <div className="week-grid">{DAYS.map((day, index) => { const meal = meals.find((item) => item.day === day); return <article className={`day-card ${meal ? 'filled' : ''}`} key={day}><div className="day-head"><span>{String(index + 1).padStart(2, '0')}</span><strong>{day}</strong>{meal && <button onClick={() => onRemove(day)} aria-label={`Remove ${day}'s meal`}><Icon name="trash" size={17}/></button>}</div>{meal ? <><img src={meal.image} alt=""/><div className="day-meal"><small>{meal.category} · {meal.area}</small><h2>{meal.title}</h2><span><Icon name="check" size={14}/>Ready to cook</span></div></> : <button className="empty-night" onClick={onDiscover}><span><Icon name="plus"/></span><strong>Add a meal</strong><small>Keep the night flexible</small></button>}</article>; })}</div>
-  </section>;
+function WeekPlan({ meals, onRemove, onDiscover, onDetail }) {
+  return (
+    <section className="plan-page">
+      <div className="page-title">
+        <div>
+          <span className="eyebrow">Your weekly rhythm</span>
+          <h1>Seven days, one simple plan.</h1>
+          <p>
+            {meals.length
+              ? `${meals.length} meals planned. Your future self says thank you.`
+              : 'Your week is wide open. Let’s add something delicious.'}
+          </p>
+        </div>
+
+        <button className="button secondary" onClick={onDiscover}>
+          <Icon name="plus" size={18} /> Find recipes
+        </button>
+      </div>
+
+      <div className="week-stats">
+        <div>
+          <strong>{meals.length}</strong>
+          <span>meals planned</span>
+        </div>
+        <div>
+          <strong>{7 - meals.length}</strong>
+          <span>open nights</span>
+        </div>
+        <div>
+          <strong>{meals.length * 30}</strong>
+          <span>minutes saved</span>
+        </div>
+      </div>
+
+      <div className="week-grid">
+        {DAYS.map((day, index) => {
+          const meal = meals.find((item) => item.day === day);
+
+          return (
+            <article className={`day-card ${meal ? 'filled' : ''}`} key={day}>
+              <div className="day-head">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <strong>{day}</strong>
+
+                {meal && (
+                  <button
+                    type="button"
+                    onClick={() => onRemove(day)}
+                    aria-label={`Remove ${day}'s meal`}
+                  >
+                    <Icon name="trash" size={17} />
+                  </button>
+                )}
+              </div>
+
+              {meal ? (
+                <button
+                  type="button"
+                  className="day-meal-button"
+                  onClick={() => onDetail(meal)}
+                  aria-label={`View recipe for ${meal.title}`}
+                >
+                  <img src={meal.image} alt="" />
+
+                  <div className="day-meal">
+                    <small>
+                      {meal.category} · {meal.area}
+                    </small>
+                    <h2>{meal.title}</h2>
+                    <span>
+                      <Icon name="check" size={14} />
+                      Ready to cook
+                    </span>
+                  </div>
+                </button>
+              ) : (
+                <button className="empty-night" onClick={onDiscover}>
+                  <span>
+                    <Icon name="plus" />
+                  </span>
+                  <strong>Add a meal</strong>
+                  <small>Keep the night flexible</small>
+                </button>
+              )}
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 function App({ googleEnabled }) {
