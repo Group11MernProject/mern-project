@@ -175,95 +175,11 @@ function RecipeDetail({ recipe, detail, onClose, onPlan }) {
 }
 
 function WeekPlan({ meals, onRemove, onDiscover, onDetail }) {
-  return (
-    <section className="plan-page">
-      <div className="page-title">
-        <div>
-          <span className="eyebrow">Your weekly rhythm</span>
-          <h1>Seven days, one simple plan.</h1>
-          <p>
-            {meals.length
-              ? `${meals.length} meals planned. Your future self says thank you.`
-              : 'Your week is wide open. Let’s add something delicious.'}
-          </p>
-        </div>
-
-        <button className="button secondary" onClick={onDiscover}>
-          <Icon name="plus" size={18} /> Find recipes
-        </button>
-      </div>
-
-      <div className="week-stats">
-        <div>
-          <strong>{meals.length}</strong>
-          <span>meals planned</span>
-        </div>
-        <div>
-          <strong>{7 - meals.length}</strong>
-          <span>open nights</span>
-        </div>
-        <div>
-          <strong>{meals.length * 30}</strong>
-          <span>minutes saved</span>
-        </div>
-      </div>
-
-      <div className="week-grid">
-        {DAYS.map((day, index) => {
-          const meal = meals.find((item) => item.day === day);
-
-          return (
-            <article className={`day-card ${meal ? 'filled' : ''}`} key={day}>
-              <div className="day-head">
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <strong>{day}</strong>
-
-                {meal && (
-                  <button
-                    type="button"
-                    onClick={() => onRemove(day)}
-                    aria-label={`Remove ${day}'s meal`}
-                  >
-                    <Icon name="trash" size={17} />
-                  </button>
-                )}
-              </div>
-
-              {meal ? (
-                <button
-                  type="button"
-                  className="day-meal-button"
-                  onClick={() => onDetail(meal)}
-                  aria-label={`View recipe for ${meal.title}`}
-                >
-                  <img src={meal.image} alt="" />
-
-                  <div className="day-meal">
-                    <small>
-                      {meal.category} · {meal.area}
-                    </small>
-                    <h2>{meal.title}</h2>
-                    <span>
-                      <Icon name="check" size={14} />
-                      Ready to cook
-                    </span>
-                  </div>
-                </button>
-              ) : (
-                <button className="empty-night" onClick={onDiscover}>
-                  <span>
-                    <Icon name="plus" />
-                  </span>
-                  <strong>Add a meal</strong>
-                  <small>Keep the night flexible</small>
-                </button>
-              )}
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  );
+  return <section className="plan-page">
+    <div className="page-title"><div><span className="eyebrow">Your weekly rhythm</span><h1>Seven days, one simple plan.</h1><p>{meals.length ? `${meals.length} meals planned. Your future self says thank you.` : 'Your week is wide open. Let’s add something delicious.'}</p></div><button className="button secondary" onClick={onDiscover}><Icon name="plus" size={18}/> Find recipes</button></div>
+    <div className="week-stats"><div><strong>{meals.length}</strong><span>meals planned</span></div><div><strong>{7 - meals.length}</strong><span>open nights</span></div><div><strong>{meals.length * 30}</strong><span>minutes saved</span></div></div>
+    <div className="week-grid">{DAYS.map((day, index) => { const meal = meals.find((item) => item.day === day); return <article className={`day-card ${meal ? 'filled' : ''}`} key={day}><div className="day-head"><span>{String(index + 1).padStart(2, '0')}</span><strong>{day}</strong>{meal && <button onClick={() => onRemove(day)} aria-label={`Remove ${day}'s meal`}><Icon name="trash" size={17}/></button>}</div>{meal ? <button className="planned-meal" onClick={() => onDetail({ ...meal, id: meal.recipeId })} aria-label={`View full recipe for ${meal.title}`}><img src={meal.image} alt=""/><div className="day-meal"><small>{meal.category} · {meal.area}</small><h2>{meal.title}</h2><span><Icon name="check" size={14}/>View full recipe</span></div></button> : <button className="empty-night" onClick={onDiscover}><span><Icon name="plus"/></span><strong>Add a meal</strong><small>Keep the night flexible</small></button>}</article>; })}</div>
+  </section>;
 }
 
 function App({ googleEnabled }) {
@@ -337,21 +253,10 @@ function App({ googleEnabled }) {
     try { const data = await api(`/meal-plans/${day}`, { method: 'DELETE' }); setMeals(data.meals); setToast(data.message); }
     catch (error) { setToast(error.message); }
   }
-
   async function showDetail(recipe) {
-  const recipeId = recipe.id || recipe.recipeId;
-
-  setDetailRecipe(recipe);
-  setDetailData(null);
-
-  try {
-    const data = await api(`/recipes/${recipeId}`);
-    setDetailData(data.recipe);
-  } catch {
-    setDetailData(recipe);
+    setDetailRecipe(recipe); setDetailData(null);
+    try { const data = await api(`/recipes/${recipe.id}`); setDetailData(data.recipe); } catch { setDetailData(recipe); }
   }
-}
-  
   async function resend() { try { const data = await api('/auth/resend-verification', { method: 'POST' }); setToast(data.message); } catch (error) { setToast(error.message); } }
 
   if (!session) return <AuthScreen onAuthenticated={authenticate} googleEnabled={googleEnabled} notice={authNotice} />;
@@ -369,12 +274,7 @@ function App({ googleEnabled }) {
           {loading ? <div className="recipe-grid">{Array.from({ length: 6 }, (_, index) => <div className="recipe-card skeleton" key={index}><i/><span/><b/></div>)}</div> : visibleRecipes.length ? <div className="recipe-grid">{visibleRecipes.slice(0, 12).map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} onPlan={setPickerRecipe} onDetail={showDetail} plannedDay={meals.find((meal) => meal.recipeId === recipe.id)?.day}/>)}</div> : <div className="empty-results"><span><Icon name="search" size={28}/></span><h3>No recipes found</h3><p>Try a broader search like “chicken,” “pasta,” or “curry.”</p></div>}
         </section>
         <MiniPlan meals={meals} onViewPlan={() => setView('plan')} />
-      </div> : <WeekPlan
-  meals={meals}
-  onRemove={removeMeal}
-  onDiscover={() => setView('discover')}
-  onDetail={showDetail}
-/>}
+      </div> : <WeekPlan meals={meals} onRemove={removeMeal} onDiscover={() => setView('discover')} onDetail={showDetail} />}
     </main>
     {mobileOpen && <button className="mobile-scrim" onClick={() => setMobileOpen(false)} aria-label="Close menu" />}
     <DayPicker recipe={pickerRecipe} meals={meals} onClose={() => setPickerRecipe(null)} onChoose={chooseDay}/>
