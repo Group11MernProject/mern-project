@@ -13,7 +13,11 @@ import { swaggerSpec } from './swagger.js';
 
 export const app = express();
 
-app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }
+}));
 app.use(cors({ origin: config.clientUrl.split(',').map((origin) => origin.trim()), credentials: true }));
 app.use(express.json({ limit: '64kb' }));
 if (config.env !== 'test') app.use(morgan('tiny'));
